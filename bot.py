@@ -11,7 +11,7 @@ intents = discord.Intents().all()
 prefix = "ping!"
 client = commands.Bot(prefix, intents=intents, help_command=None)
 token = os.environ.get("token")
-curversion = "1.0"
+curversion = "1.1"
 
 terms_file = lib.load_mem("terms.json")
 
@@ -97,6 +97,56 @@ async def list(ctx):
             new_list.append(term)
 
     await ctx.send(new_list)
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def blacklist(ctx, id):
+    id = int(id)
+    blacklist_data = lib.load_mem("blacklist.json")
+    guild_id_str = str(ctx.message.guild.id)
+    if guild_id_str not in blacklist_data:
+        blacklist_data[guild_id_str] = {"blacklisted": []}
+        lib.dump_mem(blacklist_data, "blacklist.json")
+    blacklisted_ids = blacklist_data[guild_id_str]["blacklisted"]
+    if id in blacklisted_ids:
+        await ctx.send("ID already in blacklist.")
+        return
+
+    blacklist_data[guild_id_str]["blacklisted"].append(id)
+    lib.dump_mem(blacklist_data, "blacklist.json")
+    await ctx.send("ID has been added to blacklist.")
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def whitelist(ctx, id):
+    id = int(id)
+    blacklist_data = lib.load_mem("blacklist.json")
+    guild_id_str = str(ctx.message.guild.id)
+    if guild_id_str not in blacklist_data:
+        blacklist_data[guild_id_str] = {"blacklisted": []}
+    blacklisted_ids = blacklist_data[guild_id_str]["blacklisted"]
+    if id not in blacklisted_ids:
+        await ctx.send("ID not in blacklist.")
+        return
+
+    blacklist_data[guild_id_str]["blacklisted"].remove(id)
+    lib.dump_mem(blacklist_data, "blacklist.json")
+    await ctx.send("ID has been removed from blacklist.")
+
+
+@client.event
+async def on_member_join(member):
+    blacklist_data = lib.load_mem("blacklist.json")
+    guild_id_str = str(member.guild.id)
+    if guild_id_str not in blacklist_data:
+        blacklist_data[guild_id_str] = {"blacklisted": []}
+
+    blacklisted_ids = blacklist_data[guild_id_str]["blacklisted"]
+
+    if member.id in blacklisted_ids:
+        await member.ban()
 
 
 client.run(token, reconnect=True)
