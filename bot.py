@@ -11,7 +11,7 @@ intents = discord.Intents().all()
 prefix = "ping!"
 client = commands.Bot(prefix, intents=intents, help_command=None)
 token = os.environ.get("token")
-curversion = "1.1"
+curversion = "1.1.1"
 
 terms_file = lib.load_mem("terms.json")
 
@@ -29,7 +29,7 @@ async def on_message(msg):
         await client.process_commands(msg)
         return
 
-    if msg.guild.id != 602339598525530112:
+    if msg.guild.id != int(os.environ.get("guild_id")):
         return
     for term in terms_file:
         if term in msg.content.lower():
