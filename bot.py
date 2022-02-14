@@ -48,12 +48,13 @@ async def version(ctx):
 
 @client.command(pass_context=True)
 async def help(ctx):
-    embed = discord.Embed(title="Help", color=0xb434eb)
+    embed = discord.Embed(color=0xb434eb)
     embed.add_field(name=prefix + "list", value="Lists all the whitelisted terms of the user.", inline=False)
     embed.add_field(name=prefix + "add <terms>", value="Adds terms to the list of whitelisted terms of the user. Example: <ping!add apple banana> adds 'apple' and 'banana' to the whitelisted terms", inline=False)
     embed.add_field(name=prefix + "remove <terms>", value="Removes terms from list of whitelisted terms of the user.", inline=False)
     embed.add_field(name=prefix + "blacklist <id>", value="Adds user id to the blacklist.", inline=False)
     embed.add_field(name=prefix + "whitelist <id>", value="Removes user id from the blacklist.", inline=False)
+    embed.add_field(name=prefix + "show_blacklist", value="Shows all blacklisted user ids", inline=False)
     await ctx.send(embed=embed)
 
 
@@ -136,6 +137,19 @@ async def whitelist(ctx, id):
     blacklist_data[guild_id_str]["blacklisted"].remove(id)
     lib.dump_mem(blacklist_data, "blacklist.json")
     await ctx.send("ID has been removed from blacklist.")
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def show_blacklist(ctx):
+    blacklist_data = lib.load_mem("blacklist.json")
+    guild_id_str = str(ctx.message.guild.id)
+    if guild_id_str not in blacklist_data:
+        blacklist_data[guild_id_str] = {"blacklisted": []}
+
+    blacklisted_ids = blacklist_data[guild_id_str]["blacklisted"]
+
+    await ctx.send(blacklisted_ids)
 
 
 @client.event
