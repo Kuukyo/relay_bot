@@ -41,8 +41,7 @@ async def on_message(msg):
 @client.command(pass_context=True)
 async def version(ctx):
     global curversion
-    color = lib.embed_color()
-    embed = discord.Embed(color=color)
+    embed = discord.Embed(title="Version", color=0xb434eb)
     embed.add_field(name="Version", value=curversion)
     await ctx.send(embed=embed)
 
@@ -52,7 +51,10 @@ async def help(ctx):
     embed = discord.Embed(title="Help", color=0xb434eb)
     embed.add_field(name=prefix + "list", value="Lists all the whitelisted terms of the user.", inline=False)
     embed.add_field(name=prefix + "add <terms>", value="Adds terms to the list of whitelisted terms of the user. Example: <ping!add apple banana> adds 'apple' and 'banana' to the whitelisted terms", inline=False)
-    embed.add_field(name=prefix + "remove <terms>", value="Removes terms from list of whitelisted terms of the user.")
+    embed.add_field(name=prefix + "remove <terms>", value="Removes terms from list of whitelisted terms of the user.", inline=False)
+    embed.add_field(name=prefix + "blacklist <id>", value="Adds user id to the blacklist.", inline=False)
+    embed.add_field(name=prefix + "whitelist <id>", value="Removes user id from the blacklist.", inline=False)
+    await ctx.send(embed=embed)
 
 
 @client.command(pass_context=True)
